@@ -14,12 +14,12 @@ This project lets you **talk to AI and hear it talk back** by putting together:
 
 ### What You Get
 
-- ✅ **See and hear**: Text appears right away, voice follows in 1-3 seconds
-- ✅ **High quality audio**: Clear voice at 24kHz with smooth playback
-- ✅ **Voice input**: Speak your questions instead of typing
-- ✅ **Multiple users**: Several people can use it at once
-- ✅ **Fast on Mac**: Special optimization for Apple computers
-- ✅ **Reliable**: Handles errors and crashes automatically
+- **See and hear**: Text appears right away, voice follows in 1-3 seconds
+- **High quality audio**: Clear voice at 24kHz with smooth playback
+- **Voice input**: Speak your questions instead of typing
+- **Multiple users**: Several people can use it at once
+- **Fast on Mac**: Special optimization for Apple computers
+- **Reliable**: Handles errors and crashes automatically
 
 ## How It Works
 
