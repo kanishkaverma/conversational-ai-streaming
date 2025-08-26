@@ -40,8 +40,8 @@ cd conversational-ai-streaming
 # Install server
 cd server && bun install
 
-# Install client
-cd ../client && npm install
+# Install client (use bun or npm)
+cd ../client && bun install
 
 # Add your API key
 echo "OPENAI_API_KEY=your_key_here" > server/.env
@@ -53,7 +53,7 @@ echo "OPENAI_API_KEY=your_key_here" > server/.env
 cd server && bun run start
 
 # Terminal 2 - Start web page  
-cd client && npm run dev
+cd client && bun run dev
 ```
 
 Open http://localhost:5173 in your browser.
