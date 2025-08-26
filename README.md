@@ -10,7 +10,7 @@ This system demonstrates advanced real-time AI communication patterns:
 
 - **Streaming LLM Integration**: OpenAI GPT-4 with server-sent events for immediate text response
 - **Parallel Audio Pipeline**: Concurrent TTS processing with WebSocket binary streaming  
-- **Multi-Modal Input**: Browser-based speech recognition with Parakeet.js ONNX runtime
+- **Multi-Modal Input**: Browser-based speech recognition with Parakeet.js ONNX runtime + WebGPU acceleration
 - **Production Optimizations**: Process management, error recovery, memory monitoring, auto-scaling
 
 ## Technical Flow
@@ -26,7 +26,7 @@ This system demonstrates advanced real-time AI communication patterns:
 ```
 
 **Data Flow Architecture:**
-1. **Input Processing**: Speech-to-text via ONNX runtime or direct text input
+1. **Input Processing**: Speech-to-text via ONNX Runtime Web with WebGPU backend or direct text input
 2. **LLM Streaming**: Token-level streaming from OpenAI with immediate client updates  
 3. **Dual-Path Output**: Text renders immediately while TTS queue buffers for audio generation
 4. **Zero-Copy Audio**: Direct PCM stdout streaming from Python subprocess to WebSocket clients
@@ -173,7 +173,8 @@ class TTSQueue {
 - **Framework**: React 19 with concurrent features and automatic batching
 - **Audio Processing**: Web Audio API with 24kHz AudioContext and seamless chunk scheduling
 - **State Management**: Custom hooks with useRef for WebSocket persistence
-- **Speech Recognition**: Parakeet.js with ONNX Runtime Web for client-side STT
+- **Speech Recognition**: Parakeet.js with ONNX Runtime Web + WebGPU acceleration for client-side STT
+- **ML Acceleration**: WebGPU backend for neural network inference in browser
 
 ### ML/Audio Pipeline
 - **TTS Engine**: Kyutai Delayed Streams Modeling (1.6B parameter transformer)
