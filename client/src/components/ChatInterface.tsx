@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import useWebSocketChat from '../hooks/useWebSocketChat';
 import { useParakeetTranscription } from '../hooks/useParakeetTranscription';
 import { useAudioRecording } from '../hooks/useAudioRecording';
@@ -15,7 +15,18 @@ import { cn } from '@/lib/utils';
 
 const ChatInterface: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
-  const { isConnected, currentResponse, isStreaming, error, sendMessage } = useWebSocketChat();
+  const { isConnected, messages, currentResponse, currentUserMessage, isStreaming, error, sendMessage } = useWebSocketChat();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollElement) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
+    }
+  }, [messages, currentResponse]);
   
   // Transcription hooks
   const { state: transcriptionState, initializeModel, transcribe, isReady } = useParakeetTranscription();
@@ -175,34 +186,80 @@ const ChatInterface: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Response Area */}
-        <Card className="min-h-[300px]">
+        {/* Chat History */}
+        <Card className="min-h-[400px]">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">AI Response</CardTitle>
+            <CardTitle className="text-lg font-medium">Chat History</CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[240px] w-full">
-              <div className="space-y-2">
-                {currentResponse ? (
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                    {currentResponse}
-                  </div>
-                ) : isStreaming ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-2/3" />
-                  </div>
-                ) : (
+            <ScrollArea className="h-[340px] w-full" ref={scrollAreaRef}>
+              <div className="space-y-4">
+                {messages.length === 0 && !isStreaming ? (
                   <div className="text-muted-foreground text-center py-8">
                     Send a message to start the conversation
                   </div>
-                )}
-                
-                {isStreaming && (
-                  <Badge variant="default" className="mt-4">
-                    Audio playing in real-time
-                  </Badge>
+                ) : (
+                  <>
+                    {/* Previous messages */}
+                    {messages.map((message) => (
+                      <div key={message.id} className={cn(
+                        "p-3 rounded-lg max-w-[80%]",
+                        message.type === 'user' 
+                          ? "bg-primary text-primary-foreground ml-auto" 
+                          : "bg-muted mr-auto"
+                      )}>
+                        <div className="text-sm font-medium mb-1">
+                          {message.type === 'user' ? 'You' : 'AI'}
+                        </div>
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                          {message.content}
+                        </div>
+                        <div className="text-xs opacity-70 mt-2">
+                          {message.timestamp.toLocaleTimeString()}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {/* Current streaming conversation */}
+                    {isStreaming && currentUserMessage && (
+                      <div className="p-3 rounded-lg max-w-[80%] bg-primary text-primary-foreground ml-auto">
+                        <div className="text-sm font-medium mb-1">You</div>
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                          {currentUserMessage}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Current AI response */}
+                    {(currentResponse || isStreaming) && (
+                      <div className="p-3 rounded-lg max-w-[80%] bg-muted mr-auto">
+                        <div className="text-sm font-medium mb-1 flex items-center gap-2">
+                          AI
+                          {isStreaming && (
+                            <Badge variant="default" className="animate-pulse text-xs">
+                              Streaming
+                            </Badge>
+                          )}
+                        </div>
+                        {currentResponse ? (
+                          <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                            {currentResponse}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-4 w-2/3" />
+                          </div>
+                        )}
+                        {isStreaming && (
+                          <Badge variant="secondary" className="mt-2 text-xs">
+                            Audio playing in real-time
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </ScrollArea>

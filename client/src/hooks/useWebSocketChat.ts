@@ -1,10 +1,23 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
 const useWebSocketChat = () => {
   const [isConnected, setIsConnected] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentResponse, setCurrentResponse] = useState('');
+  const [currentUserMessage, setCurrentUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const isProcessingComplete = useRef(false);
+  const currentUserMessageRef = useRef('');
+  const currentResponseRef = useRef('');
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -93,7 +106,9 @@ const useWebSocketChat = () => {
     if (event.data instanceof ArrayBuffer || event.data instanceof Blob) {
       // Convert Blob to ArrayBuffer if needed
       if (event.data instanceof Blob) {
-        event.data.arrayBuffer().then(playAudioChunk);
+        event.data.arrayBuffer().then(arrayBuffer => {
+          playAudioChunk(arrayBuffer);
+        });
       } else {
         playAudioChunk(event.data);
       }
@@ -104,6 +119,8 @@ const useWebSocketChat = () => {
     try {
       const data = JSON.parse(event.data);
 
+      console.log('Received message:', data.type, data);
+
       switch (data.type) {
         case 'connected':
           console.log('Connected:', data.clientId);
@@ -113,12 +130,55 @@ const useWebSocketChat = () => {
           break;
 
         case 'text_chunk':
-          setCurrentResponse(prev => prev + data.text);
+          console.log('Text chunk received:', data.text);
+          setCurrentResponse(prev => {
+            const updated = prev + data.text;
+            currentResponseRef.current = updated;
+            return updated;
+          });
           break;
 
         case 'text_complete':
+          // Prevent duplicate processing
+          if (isProcessingComplete.current) {
+            console.log('Ignoring duplicate text_complete');
+            return;
+          }
+          isProcessingComplete.current = true;
+          
           setIsStreaming(false);
-          console.log('Text streaming complete');
+          console.log('Text streaming complete, final response:', currentResponseRef.current);
+          
+          // Use refs for stable values
+          const userMessage = currentUserMessageRef.current;
+          const finalResponse = currentResponseRef.current;
+          
+          console.log('Final response being saved:', finalResponse);
+          console.log('User message being saved:', userMessage);
+          
+          // Add both user message and assistant response to chat history
+          const now = Date.now();
+          setMessages(prev => [
+            ...prev,
+            {
+              id: `user-${now}`,
+              type: 'user',
+              content: userMessage,
+              timestamp: new Date(now)
+            },
+            {
+              id: `assistant-${now}`,
+              type: 'assistant', 
+              content: finalResponse,
+              timestamp: new Date(now + 1)
+            }
+          ]);
+          
+          // Clear current states
+          setCurrentResponse('');
+          setCurrentUserMessage('');
+          currentResponseRef.current = '';
+          currentUserMessageRef.current = '';
           break;
 
         case 'error':
@@ -132,7 +192,7 @@ const useWebSocketChat = () => {
     } catch (err) {
       console.error('Failed to parse JSON:', err);
     }
-  }, [playAudioChunk]);
+  }, []);
 
   // Connect to WebSocket
   const connect = useCallback(() => {
@@ -182,8 +242,12 @@ const useWebSocketChat = () => {
 
     // Reset state for new message
     setCurrentResponse('');
+    setCurrentUserMessage(prompt);
     setIsStreaming(true);
     setError(null);
+    isProcessingComplete.current = false; // Reset flag for new message
+    currentResponseRef.current = '';
+    currentUserMessageRef.current = prompt;
     
     // Reset timing to current audio context time (not 0)
     if (audioContextRef.current) {
@@ -214,7 +278,9 @@ const useWebSocketChat = () => {
 
   return {
     isConnected,
+    messages,
     currentResponse,
+    currentUserMessage,
     isStreaming,
     error,
     sendMessage
