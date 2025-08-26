@@ -1,0 +1,21 @@
+{
+  "name": "conversational-ai-streaming-server",
+  "version": "1.0.0",
+  "description": "Real-time conversational AI server with text and audio streaming",
+  "main": "unified-server.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run unified-server.ts",
+    "dev": "bun --watch unified-server.ts"
+  },
+  "keywords": ["ai", "tts", "websocket", "streaming", "voice", "chat"],
+  "author": "Kanishka Verma",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.22",
+    "ai": "^5.0.22"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
