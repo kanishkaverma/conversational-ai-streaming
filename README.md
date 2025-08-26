@@ -60,6 +60,8 @@ Open http://localhost:5173 in your browser.
 
 **First time**: Downloads 1GB voice model, takes 5-10 seconds. Then it's fast.
 
+**Note**: The TTS script (`scripts/tts_mlx_streaming.py`) is self-contained with inline dependencies. When you run it with `uv run`, it automatically installs the required Python packages (`moshi_mlx`, `huggingface_hub`, etc.) without needing the original delayed-streams-modeling repository.
+
 ## Project Structure
 
 ```
@@ -90,6 +92,7 @@ conversational-ai-streaming/
 **No sound**: Check browser audio permissions and connection status  
 **High memory**: Change `--quantize 8` to `--quantize 4` in server code  
 **TTS fails**: Check internet connection for model download  
+**Python deps**: If `uv run` fails, try `pip install -r requirements.txt` first  
 
 ## License
 

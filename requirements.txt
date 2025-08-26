@@ -1,0 +1,8 @@
+huggingface_hub
+moshi_mlx==0.2.12
+numpy
+sounddevice
+sphn
+sentencepiece
+mlx-core
+mlx-nn
