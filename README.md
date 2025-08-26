@@ -4,6 +4,45 @@
 
 A production-grade system combining WebSocket-based streaming, multi-modal AI interfaces, and optimized neural text-to-speech synthesis.
 
+## Quick Start
+
+### Prerequisites
+```bash
+# Required runtime environments
+Node.js 18+ with Bun runtime
+Python 3.12+ with uv package manager  
+Apple Silicon Mac (M1/M2/M3) or NVIDIA GPU
+OpenAI API key with GPT-4 access
+```
+
+### Installation & Configuration
+```bash
+git clone https://github.com/kanishkaverma/conversational-ai-streaming
+cd conversational-ai-streaming
+
+# Server setup - WebSocket + LLM integration
+cd server && bun install
+
+# Client setup - React SPA with audio processing
+cd ../client && bun install  
+
+# Environment configuration
+echo "OPENAI_API_KEY=your_key_here" > server/.env
+```
+
+### Launch Sequence
+```bash
+# Terminal 1: Start WebSocket server with TTS subprocess
+cd server && bun run start
+
+# Terminal 2: Start development client with HMR
+cd client && bun run dev
+```
+
+**System Ready**: http://localhost:5173
+
+**First Launch**: Model downloads (1GB) and quantization (~10s), subsequent starts <2s
+
 ## Architecture Overview
 
 This system demonstrates advanced real-time AI communication patterns:
@@ -69,45 +108,6 @@ def _on_frame(frame):
 - **Throughput**: ~96KB/s audio per client, 1KB/s text, scales to dozens of concurrent users
 - **Memory**: 2GB for quantized model, efficient queue management prevents memory leaks
 - **Platform**: Optimized for Apple Silicon with MLX, fallback CUDA support
-
-## Quick Start
-
-### Prerequisites
-```bash
-# Required runtime environments
-Node.js 18+ with Bun runtime
-Python 3.12+ with uv package manager  
-Apple Silicon Mac (M1/M2/M3) or NVIDIA GPU
-OpenAI API key with GPT-4 access
-```
-
-### Installation & Configuration
-```bash
-git clone https://github.com/kanishkaverma/conversational-ai-streaming
-cd conversational-ai-streaming
-
-# Server setup - WebSocket + LLM integration
-cd server && bun install
-
-# Client setup - React SPA with audio processing
-cd ../client && bun install  
-
-# Environment configuration
-echo "OPENAI_API_KEY=your_key_here" > server/.env
-```
-
-### Launch Sequence
-```bash
-# Terminal 1: Start WebSocket server with TTS subprocess
-cd server && bun run start
-
-# Terminal 2: Start development client with HMR
-cd client && bun run dev
-```
-
-**System Ready**: http://localhost:5173
-
-**First Launch**: Model downloads (1GB) and quantization (~10s), subsequent starts <2s
 
 ## System Architecture
 
